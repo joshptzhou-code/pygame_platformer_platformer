@@ -1,0 +1,879 @@
+<html>
+<head>
+<title>main.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #7a7e85;}
+.s3 { color: #bcbec4;}
+.s4 { color: #2aacb8;}
+.s5 { color: #6aab73;}
+</style>
+</head>
+<body bgcolor="#191a1c">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+main.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">pygame</span>
+<span class="s0">from </span><span class="s1">sys </span><span class="s0">import </span><span class="s1">exit </span><span class="s2">#terminate the program</span>
+<span class="s0">import </span><span class="s1">os</span>
+<span class="s0">import </span><span class="s1">random</span>
+<span class="s0">import </span><span class="s1">tile_map</span>
+
+<span class="s2">#game variables</span>
+<span class="s1">Tile_Size </span><span class="s3">= </span><span class="s4">64</span>
+<span class="s1">Row_Count </span><span class="s3">= </span><span class="s4">16</span>
+<span class="s1">Column_Count </span><span class="s3">= </span><span class="s4">29</span>
+<span class="s1">game_width </span><span class="s3">= </span><span class="s1">Tile_Size </span><span class="s3">* </span><span class="s1">Column_Count </span><span class="s2">#(1856)</span>
+<span class="s1">game_height </span><span class="s3">= </span><span class="s1">Tile_Size </span><span class="s3">* </span><span class="s1">Row_Count </span><span class="s2">#(1024)</span>
+<span class="s1">Game_Map </span><span class="s3">= </span><span class="s1">tile_map</span><span class="s3">.</span><span class="s1">OPTIMIZED_GAME_MAP1</span>
+
+<span class="s1">Player_X </span><span class="s3">= </span><span class="s1">game_width</span><span class="s3">/</span><span class="s4">2</span>
+<span class="s1">Player_Y </span><span class="s3">= </span><span class="s1">game_height</span><span class="s3">/</span><span class="s4">2</span>
+<span class="s1">Player_width </span><span class="s3">= </span><span class="s4">100</span>
+<span class="s1">Player_height </span><span class="s3">= </span><span class="s4">100</span>
+<span class="s1">Player_Jump_Width </span><span class="s3">= </span><span class="s4">100</span>
+<span class="s1">Player_Jump_Height </span><span class="s3">= </span><span class="s4">100</span>
+<span class="s1">Player_Shoot_Width </span><span class="s3">= </span><span class="s4">110 </span><span class="s2"># same height as player height</span>
+<span class="s1">Player_Jump_Shoot_Width </span><span class="s3">= </span><span class="s4">110 </span><span class="s2"># same height as player jump height</span>
+<span class="s1">Player_distance </span><span class="s3">= </span><span class="s4">5</span>
+
+
+<span class="s1">Gravity </span><span class="s3">= </span><span class="s4">0.5</span>
+<span class="s1">Friction </span><span class="s3">= </span><span class="s4">0.4</span>
+<span class="s1">Player_Velocity_X </span><span class="s3">= </span><span class="s4">10</span>
+<span class="s1">Player_Velocity_Y </span><span class="s3">= -</span><span class="s4">15</span>
+
+<span class="s1">Player_Bullet_Width </span><span class="s3">= </span><span class="s4">33</span>
+<span class="s1">Player_Bullet_Height </span><span class="s3">= </span><span class="s4">6</span>
+<span class="s1">Player_Bullet_Velocity_X </span><span class="s3">= </span><span class="s4">8</span>
+
+<span class="s1">Health_Width </span><span class="s3">= </span><span class="s4">40</span>
+<span class="s1">Health_Height </span><span class="s3">= </span><span class="s4">10</span>
+
+<span class="s2">#enemy variables</span>
+<span class="s1">Enemy_Width </span><span class="s3">= </span><span class="s4">63</span>
+<span class="s1">Enemy_Height </span><span class="s3">= </span><span class="s4">90</span>
+
+<span class="s1">Enemy_Bullet_Width </span><span class="s3">= </span><span class="s4">70</span>
+<span class="s1">Enemy_Bullet_Height </span><span class="s3">= </span><span class="s4">35</span>
+<span class="s1">Enemy_Bullet_Velocity_X </span><span class="s3">= </span><span class="s4">2</span>
+<span class="s1">Enemy_Bullet_velocity_Y </span><span class="s3">= </span><span class="s1">Enemy_Bullet_Velocity_X</span>
+
+<span class="s1">Bat_Width </span><span class="s3">= </span><span class="s4">70</span>
+<span class="s1">Bat_Height </span><span class="s3">= </span><span class="s4">35</span>
+<span class="s1">Bat_Velocity_X </span><span class="s3">= </span><span class="s4">8</span>
+<span class="s1">Bat_Velocity_Y </span><span class="s3">= </span><span class="s4">4</span>
+
+<span class="s1">Dragon_Width </span><span class="s3">= </span><span class="s4">315</span>
+<span class="s1">Dragon_Height </span><span class="s3">= </span><span class="s4">200</span>
+
+<span class="s1">Dragon_Bullet_Width </span><span class="s3">= </span><span class="s4">115</span>
+<span class="s1">Dragon_Bullet_Height </span><span class="s3">= </span><span class="s4">20</span>
+<span class="s1">Dragon_Bullet_Velocity_X </span><span class="s3">= </span><span class="s4">1</span>
+<span class="s1">Dragon_Bullet_Velocity_Y </span><span class="s3">= </span><span class="s1">Dragon_Bullet_Velocity_X</span>
+
+<span class="s2">#item variables</span>
+<span class="s1">Life_Energy_Width </span><span class="s3">= </span><span class="s4">50</span>
+<span class="s1">Life_Energy_Height </span><span class="s3">= </span><span class="s4">50</span>
+<span class="s1">Item_Velocity_Y </span><span class="s3">= -</span><span class="s4">11 </span><span class="s2"># item flies up then goes down</span>
+
+<span class="s2">#images</span>
+<span class="s0">def </span><span class="s1">load_image</span><span class="s3">(</span><span class="s1">image_name</span><span class="s3">, </span><span class="s1">scale</span><span class="s3">=</span><span class="s0">None</span><span class="s3">):</span>
+    <span class="s1">image </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">image</span><span class="s3">.</span><span class="s1">load</span><span class="s3">(</span><span class="s1">os</span><span class="s3">.</span><span class="s1">path</span><span class="s3">.</span><span class="s1">join</span><span class="s3">(</span><span class="s5">&quot;images&quot;</span><span class="s3">, </span><span class="s1">image_name</span><span class="s3">))</span>
+    <span class="s0">if </span><span class="s1">scale </span><span class="s0">is not None</span><span class="s3">:</span>
+        <span class="s1">image </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">transform</span><span class="s3">.</span><span class="s1">scale</span><span class="s3">(</span><span class="s1">image</span><span class="s3">, </span><span class="s1">scale</span><span class="s3">)</span>
+    <span class="s0">return </span><span class="s1">image</span>
+
+<span class="s1">background_image </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;forest background.jpg&quot;</span><span class="s3">)</span><span class="s2">#background</span>
+<span class="s1">player_image_right </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;Character default right.png&quot;</span><span class="s3">, (</span><span class="s1">Player_width</span><span class="s3">, </span><span class="s1">Player_height</span><span class="s3">)) </span><span class="s2">#player</span>
+<span class="s1">player_image_left </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;Character default left.png&quot;</span><span class="s3">, (</span><span class="s1">Player_width</span><span class="s3">, </span><span class="s1">Player_height</span><span class="s3">)) </span><span class="s2">#player</span>
+<span class="s1">player_image_jump_right </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;Character jump right.png&quot;</span><span class="s3">, (</span><span class="s1">Player_Jump_Width</span><span class="s3">, </span><span class="s1">Player_Jump_Height</span><span class="s3">))</span>
+<span class="s1">player_image_jump_left </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;Character jump left.png&quot;</span><span class="s3">, (</span><span class="s1">Player_Jump_Width</span><span class="s3">, </span><span class="s1">Player_Jump_Height</span><span class="s3">))</span>
+<span class="s1">player_image_shoot_right </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;Character Bow Right.png&quot;</span><span class="s3">,(</span><span class="s1">Player_Shoot_Width</span><span class="s3">, </span><span class="s1">Player_height</span><span class="s3">))</span>
+<span class="s1">player_image_shoot_left </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;Character Bow left.png&quot;</span><span class="s3">, (</span><span class="s1">Player_Shoot_Width</span><span class="s3">, </span><span class="s1">Player_height</span><span class="s3">))</span>
+<span class="s1">player_image_jump_shoot_right </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;Character jump shoot right.png&quot;</span><span class="s3">, (</span><span class="s1">Player_Jump_Shoot_Width</span><span class="s3">, </span><span class="s1">Player_Jump_Height</span><span class="s3">))</span>
+<span class="s1">player_image_jump_shoot_left </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;Character jump shoot left.png&quot;</span><span class="s3">, (</span><span class="s1">Player_Jump_Shoot_Width</span><span class="s3">, </span><span class="s1">Player_Jump_Height</span><span class="s3">))</span>
+<span class="s1">player_image_bullet_right </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;Arrow Right.png&quot;</span><span class="s3">,(</span><span class="s1">Player_Bullet_Width</span><span class="s3">, </span><span class="s1">Player_Bullet_Height</span><span class="s3">))</span>
+
+
+<span class="s1">floor_tile_image </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;Grassy Tile platform.jpg&quot;</span><span class="s3">,(</span><span class="s1">Tile_Size</span><span class="s3">, </span><span class="s1">Tile_Size</span><span class="s3">))</span>
+<span class="s1">rock_tile1_image </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;rock-tile1.png&quot;</span><span class="s3">, (</span><span class="s1">Tile_Size</span><span class="s3">, </span><span class="s1">Tile_Size</span><span class="s3">))</span>
+<span class="s1">rock_tile2_image </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;rock-tile2.png&quot;</span><span class="s3">, (</span><span class="s1">Tile_Size</span><span class="s3">, </span><span class="s1">Tile_Size</span><span class="s3">))</span>
+<span class="s1">rock_tile3_image </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;rock-tile3.png&quot;</span><span class="s3">, (</span><span class="s1">Tile_Size</span><span class="s3">, </span><span class="s1">Tile_Size</span><span class="s3">))</span>
+<span class="s1">rock_tile4_image </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;rock-tile4.png&quot;</span><span class="s3">, (</span><span class="s1">Tile_Size</span><span class="s3">, </span><span class="s1">Tile_Size</span><span class="s3">))</span>
+<span class="s1">light_grassy_tile_image </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;light grassy platform.jpg&quot;</span><span class="s3">, (</span><span class="s1">Tile_Size</span><span class="s3">, </span><span class="s1">Tile_Size</span><span class="s3">))</span>
+<span class="s1">dark_grassy_tile_image </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;Dark wood grassy platform.jpg&quot;</span><span class="s3">, (</span><span class="s1">Tile_Size</span><span class="s3">, </span><span class="s1">Tile_Size</span><span class="s3">))</span>
+<span class="s1">final_tile_image </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;final part grass platform.jpg&quot;</span><span class="s3">, (</span><span class="s1">Tile_Size</span><span class="s3">, </span><span class="s1">Tile_Size</span><span class="s3">))</span>
+<span class="s1">room_tile_image </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;room-tile.png&quot;</span><span class="s3">, (</span><span class="s1">Tile_Size</span><span class="s3">, </span><span class="s1">Tile_Size</span><span class="s3">))</span>
+
+
+<span class="s1">enemy_image_right </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;Basic_enemy_idle_right.png&quot;</span><span class="s3">, (</span><span class="s1">Enemy_Width</span><span class="s3">, </span><span class="s1">Enemy_Height</span><span class="s3">))</span>
+<span class="s1">enemy_image_left </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;Basic_enemy_idle_left.png&quot;</span><span class="s3">, (</span><span class="s1">Enemy_Width</span><span class="s3">, </span><span class="s1">Enemy_Height</span><span class="s3">))</span>
+<span class="s1">enemy_image_defense_left </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;enemy defense left.png&quot;</span><span class="s3">, (</span><span class="s1">Enemy_Width</span><span class="s3">, </span><span class="s1">Enemy_Height</span><span class="s3">))</span>
+<span class="s1">enemy_image_defense_right </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;enemy defense right.png&quot;</span><span class="s3">, (</span><span class="s1">Enemy_Width</span><span class="s3">, </span><span class="s1">Enemy_Height</span><span class="s3">))</span>
+
+<span class="s1">enemy_image_bullet_right </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;enemy bullet right.png&quot;</span><span class="s3">, (</span><span class="s1">Enemy_Bullet_Width</span><span class="s3">, </span><span class="s1">Enemy_Bullet_Height</span><span class="s3">))</span>
+<span class="s1">enemy_image_bullet_left </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;enemy bullet left.png&quot;</span><span class="s3">,(</span><span class="s1">Enemy_Bullet_Width</span><span class="s3">, </span><span class="s1">Enemy_Bullet_Height</span><span class="s3">))</span>
+<span class="s1">health_image </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;health.png&quot;</span><span class="s3">, (</span><span class="s1">Health_Width</span><span class="s3">, </span><span class="s1">Health_Height</span><span class="s3">))</span>
+<span class="s1">life_energy_image </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;heart life energy.png&quot;</span><span class="s3">, (</span><span class="s1">Life_Energy_Width</span><span class="s3">, </span><span class="s1">Life_Energy_Height</span><span class="s3">))</span>
+<span class="s1">spike_image </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;spike.png&quot;</span><span class="s3">, (</span><span class="s1">Tile_Size</span><span class="s3">, </span><span class="s1">Tile_Size</span><span class="s3">))</span>
+<span class="s1">bat_image_right </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;bat right.png&quot;</span><span class="s3">, (</span><span class="s1">Bat_Width</span><span class="s3">, </span><span class="s1">Bat_Height</span><span class="s3">))</span>
+<span class="s1">bat_image_left </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;bat left.png&quot;</span><span class="s3">, (</span><span class="s1">Bat_Width</span><span class="s3">, </span><span class="s1">Bat_Height</span><span class="s3">))</span>
+<span class="s1">dragon_image_right </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;dragon left.png&quot;</span><span class="s3">, (</span><span class="s1">Dragon_Width</span><span class="s3">, </span><span class="s1">Dragon_Height</span><span class="s3">))</span>
+<span class="s1">dragon_image_left </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;dragon right.png&quot;</span><span class="s3">, (</span><span class="s1">Dragon_Width</span><span class="s3">, </span><span class="s1">Dragon_Height</span><span class="s3">))</span>
+<span class="s1">dragon_image_bullet_right </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;fireball right.png&quot;</span><span class="s3">, (</span><span class="s1">Dragon_Bullet_Width</span><span class="s3">, </span><span class="s1">Dragon_Bullet_Height</span><span class="s3">))</span>
+<span class="s1">dragon_image_bullet_left </span><span class="s3">= </span><span class="s1">load_image</span><span class="s3">(</span><span class="s5">&quot;fireball left.png&quot;</span><span class="s3">, (</span><span class="s1">Dragon_Bullet_Width</span><span class="s3">, </span><span class="s1">Dragon_Bullet_Height</span><span class="s3">))</span>
+
+
+<span class="s1">pygame</span><span class="s3">.</span><span class="s1">init</span><span class="s3">() </span><span class="s2">#intiate the program</span>
+<span class="s1">window </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">display</span><span class="s3">.</span><span class="s1">set_mode</span><span class="s3">((</span><span class="s1">game_width</span><span class="s3">, </span><span class="s1">game_height</span><span class="s3">))</span>
+<span class="s1">pygame</span><span class="s3">.</span><span class="s1">display</span><span class="s3">.</span><span class="s1">set_caption</span><span class="s3">(</span><span class="s5">&quot;imagine playing this game coded by the greatest person of all time&quot;</span><span class="s3">)</span>
+<span class="s1">pygame</span><span class="s3">.</span><span class="s1">display</span><span class="s3">.</span><span class="s1">set_icon</span><span class="s3">(</span><span class="s1">player_image_right</span><span class="s3">)</span>
+<span class="s1">clock </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">time</span><span class="s3">.</span><span class="s1">Clock</span><span class="s3">() </span><span class="s2"># used for frame rate</span>
+<span class="s1">pygame</span><span class="s3">.</span><span class="s1">font</span><span class="s3">.</span><span class="s1">init</span><span class="s3">()</span>
+<span class="s2">#game_font = pygame.font.SysFont(&quot;Arial&quot;, 24)</span>
+<span class="s1">game_font </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">font</span><span class="s3">.</span><span class="s1">Font</span><span class="s3">(</span><span class="s5">&quot;./HollyBerryPop.ttf&quot;</span><span class="s3">, </span><span class="s4">40</span><span class="s3">)</span>
+<span class="s1">game_over </span><span class="s3">= </span><span class="s0">False</span>
+<span class="s1">game_win </span><span class="s3">= </span><span class="s0">False</span>
+<span class="s2">#final_tile = None</span>
+
+<span class="s2">#Custom event</span>
+<span class="s1">Invincible_End </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">USEREVENT </span><span class="s3">+ </span><span class="s4">0</span>
+<span class="s1">Shooting_End </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">USEREVENT </span><span class="s3">+ </span><span class="s4">1</span>
+
+<span class="s0">class </span><span class="s1">Player</span><span class="s3">(</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">):</span>
+    <span class="s0">class </span><span class="s1">Bullet</span><span class="s3">(</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">):</span>
+        <span class="s0">def </span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+            <span class="s0">if </span><span class="s1">player</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;left&quot;</span><span class="s3">:</span>
+                <span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">.</span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">player</span><span class="s3">.</span><span class="s1">x</span><span class="s3">, </span><span class="s1">player</span><span class="s3">.</span><span class="s1">y </span><span class="s3">+ </span><span class="s1">Tile_Size</span><span class="s3">/</span><span class="s4">2</span><span class="s3">, </span><span class="s1">Player_Bullet_Width</span><span class="s3">, </span><span class="s1">Player_Bullet_Height</span><span class="s3">)</span>
+
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">velocity_x </span><span class="s3">= -</span><span class="s1">Player_Bullet_Velocity_X</span>
+            <span class="s0">elif </span><span class="s1">player</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;right&quot;</span><span class="s3">:</span>
+                <span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">.</span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">player</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+ </span><span class="s1">player</span><span class="s3">.</span><span class="s1">width</span><span class="s3">, </span><span class="s1">player</span><span class="s3">.</span><span class="s1">y </span><span class="s3">+ </span><span class="s1">Tile_Size</span><span class="s3">/</span><span class="s4">2</span><span class="s3">, </span><span class="s1">Player_Bullet_Width</span><span class="s3">, </span><span class="s1">Player_Bullet_Height </span><span class="s3">)</span>
+
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">velocity_x </span><span class="s3">= </span><span class="s1">Player_Bullet_Velocity_X</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">player_image_bullet_right</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">used </span><span class="s3">= </span><span class="s0">False</span>
+
+    <span class="s0">def </span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">.</span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">Player_X</span><span class="s3">, </span><span class="s1">Player_Y</span><span class="s3">, </span><span class="s1">Player_width</span><span class="s3">, </span><span class="s1">Player_height</span><span class="s3">)</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">player_image_right</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">velocity_x </span><span class="s3">= </span><span class="s4">0</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">velocity_y </span><span class="s3">= </span><span class="s4">0</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= </span><span class="s5">&quot;right&quot;</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">jumping </span><span class="s3">= </span><span class="s0">False</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">invincible </span><span class="s3">= </span><span class="s0">False</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">max_health </span><span class="s3">= </span><span class="s4">28</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">health </span><span class="s3">= </span><span class="s1">self</span><span class="s3">.</span><span class="s1">max_health</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">shooting </span><span class="s3">= </span><span class="s0">False</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">bullets </span><span class="s3">= []</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">score </span><span class="s3">= </span><span class="s4">0</span>
+
+    <span class="s0">def </span><span class="s1">update_image</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s0">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">jumping </span><span class="s0">and </span><span class="s1">self</span><span class="s3">.</span><span class="s1">shooting</span><span class="s3">:</span>
+            <span class="s0">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;right&quot;</span><span class="s3">:</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">player_image_jump_shoot_right</span>
+            <span class="s0">elif </span><span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;left&quot;</span><span class="s3">:</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">player_image_jump_shoot_left</span>
+
+        <span class="s0">elif </span><span class="s1">self</span><span class="s3">.</span><span class="s1">shooting</span><span class="s3">:</span>
+            <span class="s0">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;right&quot;</span><span class="s3">:</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">player_image_shoot_right</span>
+            <span class="s0">elif </span><span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;left&quot;</span><span class="s3">:</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">player_image_shoot_left</span>
+
+        <span class="s0">elif </span><span class="s1">self</span><span class="s3">.</span><span class="s1">jumping</span><span class="s3">:</span>
+            <span class="s0">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;right&quot;</span><span class="s3">:</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">player_image_jump_right</span>
+            <span class="s0">elif </span><span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;left&quot;</span><span class="s3">:</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">player_image_jump_left</span>
+        <span class="s0">else</span><span class="s3">:</span>
+            <span class="s0">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;right&quot;</span><span class="s3">:</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">player_image_right</span>
+            <span class="s0">elif </span><span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;left&quot;</span><span class="s3">:</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">player_image_left</span>
+
+    <span class="s0">def </span><span class="s1">set_invincible</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">milliseconds</span><span class="s3">=</span><span class="s4">1000</span><span class="s3">):</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">invincible </span><span class="s3">= </span><span class="s0">True</span>
+        <span class="s1">pygame</span><span class="s3">.</span><span class="s1">time</span><span class="s3">.</span><span class="s1">set_timer</span><span class="s3">(</span><span class="s1">Invincible_End</span><span class="s3">, </span><span class="s1">milliseconds</span><span class="s3">, </span><span class="s4">1</span><span class="s3">)</span>
+
+    <span class="s0">def </span><span class="s1">set_shooting</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s0">if not </span><span class="s1">self</span><span class="s3">.</span><span class="s1">shooting</span><span class="s3">:</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">shooting </span><span class="s3">= </span><span class="s0">True</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">bullets</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">Player</span><span class="s3">.</span><span class="s1">Bullet</span><span class="s3">())</span>
+            <span class="s1">pygame</span><span class="s3">.</span><span class="s1">time</span><span class="s3">.</span><span class="s1">set_timer</span><span class="s3">(</span><span class="s1">Shooting_End</span><span class="s3">, </span><span class="s4">250</span><span class="s3">, </span><span class="s4">1</span><span class="s3">)</span>
+
+<span class="s0">class </span><span class="s1">Enemy</span><span class="s3">(</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">):</span>
+    <span class="s0">class </span><span class="s1">Bullet</span><span class="s3">(</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">):</span>
+        <span class="s0">def </span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">enemy</span><span class="s3">, </span><span class="s1">velocity_y</span><span class="s3">):</span>
+            <span class="s0">if </span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;left&quot;</span><span class="s3">:</span>
+                <span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">.</span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">x</span><span class="s3">, </span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">y </span><span class="s3">+ </span><span class="s1">Tile_Size </span><span class="s3">/ </span><span class="s4">2</span><span class="s3">,</span>
+                                     <span class="s1">Enemy_Bullet_Width</span><span class="s3">, </span><span class="s1">Enemy_Bullet_Height</span><span class="s3">)</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">velocity_x </span><span class="s3">= -</span><span class="s1">Enemy_Bullet_Velocity_X</span>
+            <span class="s0">elif </span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;right&quot;</span><span class="s3">:</span>
+                <span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">.</span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+ </span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">width</span><span class="s3">, </span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">y </span><span class="s3">+ </span><span class="s1">Tile_Size </span><span class="s3">/ </span><span class="s4">2</span><span class="s3">,</span>
+                                     <span class="s1">Enemy_Bullet_Width</span><span class="s3">, </span><span class="s1">Enemy_Bullet_Height</span><span class="s3">)</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">velocity_x </span><span class="s3">= </span><span class="s1">Enemy_Bullet_Velocity_X</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">velocity_y </span><span class="s3">= </span><span class="s1">velocity_y</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">enemy_image_bullet_left</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">used </span><span class="s3">= </span><span class="s0">False</span>
+
+    <span class="s0">def </span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">):</span>
+        <span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">.</span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">Enemy_Width</span><span class="s3">, </span><span class="s1">Enemy_Height</span><span class="s3">)</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">enemy_image_left</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">velocity_y </span><span class="s3">= </span><span class="s4">0</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= </span><span class="s5">&quot;left&quot;</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">jumping </span><span class="s3">= </span><span class="s0">False</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">health </span><span class="s3">= </span><span class="s4">1</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">bullets </span><span class="s3">= []</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">last_fired </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">time</span><span class="s3">.</span><span class="s1">get_ticks</span><span class="s3">()  </span><span class="s2"># time in ms after pygame.initialize</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">guarding </span><span class="s3">= </span><span class="s0">False</span>
+
+    <span class="s0">def </span><span class="s1">update_image</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s0">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;right&quot;</span><span class="s3">:</span>
+            <span class="s0">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">guarding</span><span class="s3">:</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">enemy_image_defense_right</span>
+            <span class="s0">else</span><span class="s3">:</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">enemy_image_right</span>
+        <span class="s0">elif </span><span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;left&quot;</span><span class="s3">:</span>
+            <span class="s0">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">guarding</span><span class="s3">:</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">enemy_image_defense_left</span>
+            <span class="s0">else</span><span class="s3">:</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">enemy_image_left</span>
+
+    <span class="s0">def </span><span class="s1">set_shooting</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s0">if </span><span class="s1">abs</span><span class="s3">(</span><span class="s1">self</span><span class="s3">.</span><span class="s1">x </span><span class="s3">- </span><span class="s1">player</span><span class="s3">.</span><span class="s1">x</span><span class="s3">) &lt;= </span><span class="s1">Tile_Size </span><span class="s3">* </span><span class="s4">4</span><span class="s3">:</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">guarding </span><span class="s3">= </span><span class="s0">False</span>
+            <span class="s1">now </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">time</span><span class="s3">.</span><span class="s1">get_ticks</span><span class="s3">()</span>
+            <span class="s0">if </span><span class="s1">now </span><span class="s3">- </span><span class="s1">self</span><span class="s3">.</span><span class="s1">last_fired </span><span class="s3">&gt; </span><span class="s4">1000</span><span class="s3">:</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">last_fired </span><span class="s3">= </span><span class="s1">now</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">bullets</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">Enemy</span><span class="s3">.</span><span class="s1">Bullet</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, -</span><span class="s1">Enemy_Bullet_velocity_Y</span><span class="s3">))</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">bullets</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">Enemy</span><span class="s3">.</span><span class="s1">Bullet</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s4">0</span><span class="s3">))</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">bullets</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">Enemy</span><span class="s3">.</span><span class="s1">Bullet</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">Enemy_Bullet_velocity_Y</span><span class="s3">))</span>
+        <span class="s0">else</span><span class="s3">:</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">guarding </span><span class="s3">= </span><span class="s0">True</span>
+
+<span class="s0">class </span><span class="s1">Dragon</span><span class="s3">(</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">):</span>
+    <span class="s0">class </span><span class="s1">Bullet</span><span class="s3">(</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">):</span>
+        <span class="s0">def </span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">dragon</span><span class="s3">, </span><span class="s1">velocity_y</span><span class="s3">):</span>
+            <span class="s0">if </span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;left&quot;</span><span class="s3">:</span>
+                <span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">.</span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">x</span><span class="s3">, </span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">y </span><span class="s3">+ </span><span class="s1">Tile_Size </span><span class="s3">/ </span><span class="s4">2</span><span class="s3">,</span>
+                                     <span class="s1">Dragon_Bullet_Width</span><span class="s3">, </span><span class="s1">Dragon_Bullet_Height</span><span class="s3">)</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">velocity_x </span><span class="s3">= -</span><span class="s1">Dragon_Bullet_Velocity_X</span>
+            <span class="s0">elif </span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;right&quot;</span><span class="s3">:</span>
+                <span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">.</span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+ </span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">width</span><span class="s3">, </span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">y </span><span class="s3">+ </span><span class="s1">Tile_Size </span><span class="s3">/ </span><span class="s4">2</span><span class="s3">,</span>
+                                     <span class="s1">Dragon_Bullet_Width</span><span class="s3">, </span><span class="s1">Dragon_Bullet_Height</span><span class="s3">)</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">velocity_x </span><span class="s3">= </span><span class="s1">Dragon_Bullet_Velocity_X</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">velocity_y </span><span class="s3">= </span><span class="s1">velocity_y</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">dragon_image_bullet_left</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">used </span><span class="s3">= </span><span class="s0">False</span>
+
+    <span class="s0">def </span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">):</span>
+        <span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">.</span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">Dragon_Width</span><span class="s3">, </span><span class="s1">Dragon_Height</span><span class="s3">)</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">dragon_image_left</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">velocity_y </span><span class="s3">= </span><span class="s4">0</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= </span><span class="s5">&quot;left&quot;</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">jumping </span><span class="s3">= </span><span class="s0">False</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">health </span><span class="s3">= </span><span class="s4">30</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">bullets </span><span class="s3">= []</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">last_fired </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">time</span><span class="s3">.</span><span class="s1">get_ticks</span><span class="s3">()  </span><span class="s2"># time in ms after pygame.initialize</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">guarding </span><span class="s3">= </span><span class="s0">False</span>
+
+    <span class="s0">def </span><span class="s1">update_image</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s0">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;left&quot;</span><span class="s3">:</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">dragon_image_right</span>
+        <span class="s0">elif </span><span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;right&quot;</span><span class="s3">:</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">dragon_image_left</span>
+
+    <span class="s0">def </span><span class="s1">set_shooting</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s0">if </span><span class="s1">abs</span><span class="s3">(</span><span class="s1">self</span><span class="s3">.</span><span class="s1">x </span><span class="s3">- </span><span class="s1">player</span><span class="s3">.</span><span class="s1">x</span><span class="s3">) &lt;= </span><span class="s1">Tile_Size </span><span class="s3">* </span><span class="s4">9</span><span class="s3">:</span>
+            <span class="s1">now </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">time</span><span class="s3">.</span><span class="s1">get_ticks</span><span class="s3">()</span>
+            <span class="s0">if </span><span class="s1">now </span><span class="s3">- </span><span class="s1">self</span><span class="s3">.</span><span class="s1">last_fired </span><span class="s3">&gt; </span><span class="s4">3000</span><span class="s3">:</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">last_fired </span><span class="s3">= </span><span class="s1">now</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">bullets</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">Dragon</span><span class="s3">.</span><span class="s1">Bullet</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, -</span><span class="s1">Dragon_Bullet_Velocity_Y</span><span class="s3">))</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">bullets</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">Dragon</span><span class="s3">.</span><span class="s1">Bullet</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s4">0</span><span class="s3">))</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">bullets</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">Dragon</span><span class="s3">.</span><span class="s1">Bullet</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">Dragon_Bullet_Velocity_Y</span><span class="s3">))</span>
+
+
+<span class="s0">class </span><span class="s1">Bat</span><span class="s3">(</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">):</span>
+    <span class="s0">def </span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">):</span>
+        <span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">.</span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">Bat_Width</span><span class="s3">, </span><span class="s1">Bat_Height</span><span class="s3">)</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">bat_image_right</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= </span><span class="s5">&quot;right&quot;</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">health </span><span class="s3">= </span><span class="s4">3</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">velocity_x </span><span class="s3">= </span><span class="s1">Bat_Velocity_X</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">velocity_y </span><span class="s3">= </span><span class="s1">Bat_Velocity_Y</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">start_x </span><span class="s3">= </span><span class="s1">x</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">start_y </span><span class="s3">= </span><span class="s1">y</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">max_range_x </span><span class="s3">= </span><span class="s1">Tile_Size</span><span class="s3">*</span><span class="s4">13</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">max_range_y </span><span class="s3">= </span><span class="s1">Tile_Size</span><span class="s3">*</span><span class="s4">4</span>
+
+    <span class="s0">def </span><span class="s1">update_image</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s0">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;right&quot;</span><span class="s3">:</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">bat_image_right</span>
+        <span class="s0">elif </span><span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">== </span><span class="s5">&quot;left&quot;</span><span class="s3">:</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">bat_image_left</span>
+
+<span class="s2">#class Dragon(pygame.Rect):</span>
+ <span class="s2">#   class Bullet(pygame.Rect):</span>
+       <span class="s2"># def __init__(self, dragon, velocity_y):</span>
+          <span class="s2">#  if dragon.direction == &quot;left&quot;:</span>
+            <span class="s2">#    pygame.Rect.__init__(self, dragon.x, dragon.y + Tile_Size/2, Dragon_Bullet_Width, Dragon_Bullet_Height)</span>
+           <span class="s2">#     self.velocity_x = -Dragon_Bullet_Velocity_X</span>
+          <span class="s2">#  elif dragon.direction == &quot;right&quot;:</span>
+            <span class="s2">#    pygame.Rect.__init__(self, dragon.x + dragon.width, dragon.y + Tile_Size/2, Dragon_Bullet_Width, Dragon_Bullet_Height)</span>
+            <span class="s2">#    self.velocity_x = Dragon_Bullet_Velocity_X</span>
+          <span class="s2">#  self.velocity_y = velocity_y</span>
+          <span class="s2">#  self.image = dragon_image_bullet</span>
+          <span class="s2">#  self.used = False</span>
+
+   <span class="s2"># def __init__(self, x, y):</span>
+       <span class="s2"># pygame.Rect.__init__(self, x, y, Dragon_Width, Dragon_Height)</span>
+      <span class="s2">#  self.image = dragon_image_left</span>
+       <span class="s2"># self.velocity_y = 0</span>
+        <span class="s2">#self.direction = &quot;right&quot;</span>
+       <span class="s2"># self.health = 20</span>
+       <span class="s2"># self.jumping = False</span>
+        <span class="s2">#self.guarding = False</span>
+       <span class="s2"># self.last_fired = pygame.time.get_ticks()</span>
+       <span class="s2"># self.bullets = []</span>
+        <span class="s2">#self.shooting = False</span>
+
+   <span class="s2"># def update_image(self):</span>
+     <span class="s2">#   if self.direction == &quot;right&quot;:</span>
+        <span class="s2">#    self.image = dragon_image_right</span>
+       <span class="s2"># elif self.direction == &quot;left&quot;:</span>
+          <span class="s2">#  self.image = dragon_image_left</span>
+
+    <span class="s2">#def set_shooting(self):</span>
+     <span class="s2">#   if abs(self.x - player.x) &lt;= Tile_Size * 6:</span>
+           <span class="s2"># now = pygame.time.get_ticks()</span>
+         <span class="s2">#   if now - self.last_fired &gt; 3000:</span>
+           <span class="s2">#     self.last_fired = now</span>
+              <span class="s2">#  self.bullets.append(Dragon.Bullet(self, -Enemy_Bullet_velocity_Y))</span>
+               <span class="s2"># self.bullets.append(Dragon.Bullet(self, 0))</span>
+                <span class="s2">#self.bullets.append(Dragon.Bullet(self, Enemy_Bullet_velocity_Y))</span>
+
+
+<span class="s0">class </span><span class="s1">Tile</span><span class="s3">(</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">):</span>
+    <span class="s0">def </span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">image</span><span class="s3">):</span>
+        <span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">.</span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">Tile_Size</span><span class="s3">, </span><span class="s1">Tile_Size</span><span class="s3">)</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">image</span>
+
+<span class="s0">class </span><span class="s1">Item</span><span class="s3">(</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">):</span>
+    <span class="s0">def </span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">image</span><span class="s3">):</span>
+        <span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">.</span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">image</span><span class="s3">.</span><span class="s1">get_width</span><span class="s3">(), </span><span class="s1">image</span><span class="s3">.</span><span class="s1">get_height</span><span class="s3">())</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">image </span><span class="s3">= </span><span class="s1">image</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">jumping </span><span class="s3">= </span><span class="s0">False</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">velocity_y </span><span class="s3">= </span><span class="s1">Item_Velocity_Y</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">used </span><span class="s3">= </span><span class="s0">False</span>
+
+<span class="s0">def </span><span class="s1">append_tiles</span><span class="s3">(</span><span class="s1">map_code</span><span class="s3">, </span><span class="s1">tile</span><span class="s3">):</span>
+    <span class="s0">if </span><span class="s1">map_code </span><span class="s3">&lt; </span><span class="s4">0</span><span class="s3">:</span>
+        <span class="s1">background_tiles</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">tile</span><span class="s3">)</span>
+    <span class="s0">else</span><span class="s3">:</span>
+        <span class="s1">tiles</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">tile</span><span class="s3">)</span>
+
+<span class="s2">#CREATE THE TILES</span>
+<span class="s0">def </span><span class="s1">create_map</span><span class="s3">():</span>
+    <span class="s2">#global final_tile</span>
+
+    <span class="s0">for </span><span class="s1">column </span><span class="s0">in </span><span class="s1">range</span><span class="s3">(</span><span class="s1">len</span><span class="s3">(</span><span class="s1">Game_Map</span><span class="s3">[</span><span class="s4">0</span><span class="s3">])):</span>
+        <span class="s0">for </span><span class="s1">row </span><span class="s0">in </span><span class="s1">range</span><span class="s3">(</span><span class="s1">len</span><span class="s3">(</span><span class="s1">Game_Map</span><span class="s3">)):</span>
+            <span class="s1">map_code </span><span class="s3">= </span><span class="s1">Game_Map</span><span class="s3">[</span><span class="s1">row</span><span class="s3">][</span><span class="s1">column</span><span class="s3">]</span>
+            <span class="s1">x </span><span class="s3">= </span><span class="s1">column </span><span class="s3">* </span><span class="s1">Tile_Size</span>
+            <span class="s1">y </span><span class="s3">= </span><span class="s1">row </span><span class="s3">* </span><span class="s1">Tile_Size</span>
+            <span class="s0">if </span><span class="s1">map_code </span><span class="s3">== </span><span class="s4">0</span><span class="s3">:</span>
+                <span class="s0">continue</span>
+
+            <span class="s0">elif </span><span class="s1">abs</span><span class="s3">(</span><span class="s1">map_code</span><span class="s3">) == </span><span class="s4">1</span><span class="s3">:</span>
+                <span class="s1">append_tiles</span><span class="s3">(</span><span class="s1">map_code</span><span class="s3">, </span><span class="s1">Tile</span><span class="s3">(</span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">rock_tile1_image</span><span class="s3">))</span>
+
+            <span class="s0">elif </span><span class="s1">abs</span><span class="s3">(</span><span class="s1">map_code</span><span class="s3">) == </span><span class="s4">2</span><span class="s3">:</span>
+                <span class="s1">append_tiles</span><span class="s3">(</span><span class="s1">map_code</span><span class="s3">, </span><span class="s1">Tile</span><span class="s3">(</span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">rock_tile2_image</span><span class="s3">))</span>
+
+            <span class="s0">elif </span><span class="s1">abs</span><span class="s3">(</span><span class="s1">map_code</span><span class="s3">) == </span><span class="s4">3</span><span class="s3">:</span>
+                <span class="s1">append_tiles</span><span class="s3">(</span><span class="s1">map_code</span><span class="s3">, </span><span class="s1">Tile</span><span class="s3">(</span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">rock_tile3_image</span><span class="s3">))</span>
+
+            <span class="s0">elif </span><span class="s1">abs</span><span class="s3">(</span><span class="s1">map_code</span><span class="s3">) == </span><span class="s4">4</span><span class="s3">:</span>
+                <span class="s1">append_tiles</span><span class="s3">(</span><span class="s1">map_code</span><span class="s3">, </span><span class="s1">Tile</span><span class="s3">(</span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">rock_tile4_image</span><span class="s3">))</span>
+
+            <span class="s0">elif </span><span class="s1">abs</span><span class="s3">(</span><span class="s1">map_code</span><span class="s3">) == </span><span class="s4">5</span><span class="s3">:</span>
+                <span class="s1">append_tiles</span><span class="s3">(</span><span class="s1">map_code</span><span class="s3">, </span><span class="s1">Tile</span><span class="s3">(</span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">light_grassy_tile_image</span><span class="s3">))</span>
+
+            <span class="s0">elif </span><span class="s1">abs</span><span class="s3">(</span><span class="s1">map_code</span><span class="s3">) == </span><span class="s4">6</span><span class="s3">:</span>
+                <span class="s1">append_tiles</span><span class="s3">(</span><span class="s1">map_code</span><span class="s3">, </span><span class="s1">Tile</span><span class="s3">(</span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">dark_grassy_tile_image</span><span class="s3">))</span>
+
+            <span class="s0">elif </span><span class="s1">map_code </span><span class="s3">== </span><span class="s4">7</span><span class="s3">:</span>
+                <span class="s1">background_tiles</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">Tile</span><span class="s3">(</span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">room_tile_image</span><span class="s3">))</span>
+
+            <span class="s0">elif </span><span class="s1">map_code </span><span class="s3">== </span><span class="s4">8</span><span class="s3">:</span>
+                <span class="s1">spikes</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">Tile</span><span class="s3">(</span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">spike_image</span><span class="s3">))</span>
+
+            <span class="s0">elif </span><span class="s1">map_code </span><span class="s3">== </span><span class="s4">9</span><span class="s3">:</span>
+                <span class="s1">enemies</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">Enemy</span><span class="s3">(</span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">))</span>
+
+            <span class="s0">elif </span><span class="s1">map_code </span><span class="s3">== </span><span class="s4">10</span><span class="s3">:</span>
+                <span class="s1">bats</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">Bat</span><span class="s3">(</span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">))</span>
+
+            <span class="s0">elif </span><span class="s1">map_code </span><span class="s3">== </span><span class="s4">11</span><span class="s3">:</span>
+                <span class="s1">final_tile </span><span class="s3">= </span><span class="s1">Tile</span><span class="s3">(</span><span class="s1">x</span><span class="s3">,</span><span class="s1">y</span><span class="s3">, </span><span class="s1">final_tile_image</span><span class="s3">)</span>
+                <span class="s1">tiles</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">final_tile</span><span class="s3">)</span>
+
+
+            <span class="s0">elif </span><span class="s1">map_code </span><span class="s3">== </span><span class="s4">12</span><span class="s3">:</span>
+                <span class="s1">tiles</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">Tile</span><span class="s3">(</span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">floor_tile_image</span><span class="s3">))</span>
+
+            <span class="s0">elif </span><span class="s1">map_code </span><span class="s3">== </span><span class="s4">13</span><span class="s3">:</span>
+               <span class="s1">dragons</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">Dragon</span><span class="s3">(</span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">))</span>
+
+<span class="s0">def </span><span class="s1">reset_game</span><span class="s3">():</span>
+    <span class="s0">global </span><span class="s1">player</span><span class="s3">, </span><span class="s1">enemies</span><span class="s3">, </span><span class="s1">enemy_bullets</span><span class="s3">, </span><span class="s1">tiles</span><span class="s3">, </span><span class="s1">background_tiles</span><span class="s3">, </span><span class="s1">items</span><span class="s3">, </span><span class="s1">spikes</span><span class="s3">, </span><span class="s1">bats</span><span class="s3">, </span><span class="s1">game_over</span><span class="s3">, </span><span class="s1">game_win</span><span class="s3">, </span><span class="s1">dragons</span><span class="s3">, </span><span class="s1">dragon_bullets </span><span class="s2">#win_tiles #final_tiles</span>
+
+    <span class="s1">player </span><span class="s3">= </span><span class="s1">Player</span><span class="s3">()</span>
+    <span class="s1">enemies </span><span class="s3">= []</span>
+    <span class="s1">enemy_bullets </span><span class="s3">= []  </span><span class="s2"># keep bullets active after death</span>
+    <span class="s1">tiles </span><span class="s3">= []</span>
+    <span class="s1">background_tiles </span><span class="s3">= []</span>
+    <span class="s1">items </span><span class="s3">= []</span>
+    <span class="s1">spikes </span><span class="s3">= []</span>
+    <span class="s1">bats </span><span class="s3">= []</span>
+    <span class="s1">dragons </span><span class="s3">= []</span>
+    <span class="s1">create_map</span><span class="s3">()</span>
+
+    <span class="s1">game_over </span><span class="s3">= </span><span class="s0">False</span>
+    <span class="s1">game_win </span><span class="s3">= </span><span class="s0">False</span>
+
+<span class="s0">def </span><span class="s1">check_tile_collision</span><span class="s3">(</span><span class="s1">character</span><span class="s3">):</span>
+    <span class="s0">for </span><span class="s1">tile </span><span class="s0">in </span><span class="s1">tiles</span><span class="s3">:</span>
+        <span class="s0">if </span><span class="s1">character</span><span class="s3">.</span><span class="s1">colliderect</span><span class="s3">(</span><span class="s1">tile</span><span class="s3">):</span>
+            <span class="s0">return </span><span class="s1">tile</span>
+        <span class="s0">elif </span><span class="s1">tile</span><span class="s3">.</span><span class="s1">x </span><span class="s3">- </span><span class="s1">character</span><span class="s3">.</span><span class="s1">x </span><span class="s3">&gt; </span><span class="s1">game_width</span><span class="s3">:</span>
+            <span class="s0">return None</span>
+    <span class="s0">return None</span>
+
+<span class="s0">def </span><span class="s1">check_tile_collision_x</span><span class="s3">(</span><span class="s1">character</span><span class="s3">):</span>
+    <span class="s1">tile </span><span class="s3">= </span><span class="s1">check_tile_collision</span><span class="s3">(</span><span class="s1">character</span><span class="s3">)</span>
+    <span class="s0">if </span><span class="s1">tile </span><span class="s0">is not None</span><span class="s3">:</span>
+        <span class="s0">if </span><span class="s1">character</span><span class="s3">.</span><span class="s1">velocity_x </span><span class="s3">&lt; </span><span class="s4">0</span><span class="s3">:</span>
+            <span class="s1">character</span><span class="s3">.</span><span class="s1">x </span><span class="s3">= </span><span class="s1">tile</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+ </span><span class="s1">tile</span><span class="s3">.</span><span class="s1">width</span>
+        <span class="s0">elif </span><span class="s1">character</span><span class="s3">.</span><span class="s1">velocity_x </span><span class="s3">&gt; </span><span class="s4">0</span><span class="s3">:</span>
+            <span class="s1">character</span><span class="s3">.</span><span class="s1">x </span><span class="s3">= </span><span class="s1">tile</span><span class="s3">.</span><span class="s1">x </span><span class="s3">- </span><span class="s1">character</span><span class="s3">.</span><span class="s1">width</span>
+        <span class="s1">character</span><span class="s3">.</span><span class="s1">velocity_x </span><span class="s3">= </span><span class="s4">0</span>
+
+<span class="s0">def </span><span class="s1">check_tile_collision_y</span><span class="s3">(</span><span class="s1">character</span><span class="s3">):</span>
+   <span class="s1">tile </span><span class="s3">= </span><span class="s1">check_tile_collision</span><span class="s3">(</span><span class="s1">character</span><span class="s3">)</span>
+   <span class="s0">if </span><span class="s1">tile </span><span class="s0">is not None</span><span class="s3">:</span>
+       <span class="s0">if </span><span class="s1">character</span><span class="s3">.</span><span class="s1">velocity_y </span><span class="s3">&lt; </span><span class="s4">0</span><span class="s3">:</span>
+           <span class="s1">character</span><span class="s3">.</span><span class="s1">y </span><span class="s3">= </span><span class="s1">tile</span><span class="s3">.</span><span class="s1">y </span><span class="s3">+ </span><span class="s1">tile</span><span class="s3">.</span><span class="s1">height</span>
+       <span class="s0">elif </span><span class="s1">character</span><span class="s3">.</span><span class="s1">velocity_y </span><span class="s3">&gt; </span><span class="s4">0</span><span class="s3">:</span>
+           <span class="s1">character</span><span class="s3">.</span><span class="s1">y </span><span class="s3">= </span><span class="s1">tile</span><span class="s3">.</span><span class="s1">y </span><span class="s3">- </span><span class="s1">character</span><span class="s3">.</span><span class="s1">height</span>
+           <span class="s1">character</span><span class="s3">.</span><span class="s1">jumping </span><span class="s3">= </span><span class="s0">False</span>
+       <span class="s1">character</span><span class="s3">.</span><span class="s1">velocity_y </span><span class="s3">= </span><span class="s4">0</span>
+
+<span class="s0">def </span><span class="s1">drop_item</span><span class="s3">(</span><span class="s1">character</span><span class="s3">):</span>
+    <span class="s1">random_number </span><span class="s3">= </span><span class="s1">random</span><span class="s3">.</span><span class="s1">randint</span><span class="s3">(</span><span class="s4">1</span><span class="s3">, </span><span class="s4">100</span><span class="s3">)</span>
+    <span class="s0">if </span><span class="s4">0 </span><span class="s3">&lt; </span><span class="s1">random_number </span><span class="s3">&lt;= </span><span class="s4">20</span><span class="s3">:</span>
+        <span class="s1">items</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">Item</span><span class="s3">(</span><span class="s1">character</span><span class="s3">.</span><span class="s1">x</span><span class="s3">, </span><span class="s1">character</span><span class="s3">.</span><span class="s1">y</span><span class="s3">, </span><span class="s1">life_energy_image</span><span class="s3">))</span>
+
+<span class="s2">#scrolling camera(everything moves with the player)</span>
+<span class="s0">def </span><span class="s1">move_player_x</span><span class="s3">(</span><span class="s1">velocity_x</span><span class="s3">):</span>
+    <span class="s1">move_map_x</span><span class="s3">(</span><span class="s1">velocity_x</span><span class="s3">)</span>
+    <span class="s1">tile </span><span class="s3">= </span><span class="s1">check_tile_collision</span><span class="s3">(</span><span class="s1">player</span><span class="s3">)</span>
+    <span class="s0">if </span><span class="s1">tile </span><span class="s0">is not None</span><span class="s3">:</span>
+        <span class="s1">move_map_x</span><span class="s3">(-</span><span class="s1">velocity_x</span><span class="s3">)</span>
+
+<span class="s0">def </span><span class="s1">move_map_x</span><span class="s3">(</span><span class="s1">velocity_x</span><span class="s3">):</span>
+    <span class="s0">for </span><span class="s1">tile </span><span class="s0">in </span><span class="s1">background_tiles</span><span class="s3">:</span>
+        <span class="s1">tile</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+= </span><span class="s1">velocity_x</span>
+
+    <span class="s0">for </span><span class="s1">tile </span><span class="s0">in </span><span class="s1">tiles</span><span class="s3">:</span>
+        <span class="s1">tile</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+= </span><span class="s1">velocity_x</span>
+
+    <span class="s0">for </span><span class="s1">enemy </span><span class="s0">in </span><span class="s1">enemies</span><span class="s3">:</span>
+        <span class="s1">enemy</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+= </span><span class="s1">velocity_x</span>
+        <span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">bullets</span><span class="s3">:</span>
+            <span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+= </span><span class="s1">velocity_x</span>
+
+    <span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">enemy_bullets</span><span class="s3">:</span>
+        <span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+= </span><span class="s1">velocity_x</span>
+
+    <span class="s0">for </span><span class="s1">dragon </span><span class="s0">in </span><span class="s1">dragons</span><span class="s3">:</span>
+        <span class="s1">dragon</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+= </span><span class="s1">velocity_x</span>
+        <span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">bullets</span><span class="s3">:</span>
+            <span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+= </span><span class="s1">velocity_x</span>
+
+    <span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">dragon_bullets</span><span class="s3">:</span>
+        <span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+= </span><span class="s1">velocity_x</span>
+
+    <span class="s0">for </span><span class="s1">item </span><span class="s0">in </span><span class="s1">items</span><span class="s3">:</span>
+        <span class="s1">item</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+= </span><span class="s1">velocity_x</span>
+
+    <span class="s0">for </span><span class="s1">spike </span><span class="s0">in </span><span class="s1">spikes</span><span class="s3">:</span>
+        <span class="s1">spike</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+= </span><span class="s1">velocity_x</span>
+
+    <span class="s0">for </span><span class="s1">bat </span><span class="s0">in </span><span class="s1">bats</span><span class="s3">:</span>
+        <span class="s1">bat</span><span class="s3">.</span><span class="s1">start_x </span><span class="s3">+= </span><span class="s1">velocity_x</span>
+        <span class="s1">bat</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+= </span><span class="s1">velocity_x</span>
+
+    <span class="s2">#for dragon in dragons:</span>
+      <span class="s2">#  dragon.x += velocity_x</span>
+
+
+<span class="s0">def </span><span class="s1">move</span><span class="s3">():</span>
+    <span class="s0">global </span><span class="s1">enemies</span><span class="s3">, </span><span class="s1">items</span><span class="s3">, </span><span class="s1">bats</span><span class="s3">, </span><span class="s1">enemy_bullets</span><span class="s3">, </span><span class="s1">game_over</span><span class="s3">, </span><span class="s1">game_win</span><span class="s3">, </span><span class="s1">dragons</span><span class="s3">, </span><span class="s1">dragon_bullets </span><span class="s2">#win_tiles #final_tiles</span>
+    <span class="s2"># x movement</span>
+    <span class="s2"># if player.direction == &quot;left&quot; and player.velocity_x &lt; 0:</span>
+    <span class="s2">#     player.velocity_x += FRICTION</span>
+    <span class="s2"># elif player.direction == &quot;right&quot; and player.velocity_x &gt; 0:</span>
+    <span class="s2">#     player.velocity_x -= FRICTION</span>
+    <span class="s2"># else:</span>
+    <span class="s2">#     player.velocity_x = 0</span>
+
+    <span class="s2"># player.x += player.velocity_x</span>
+    <span class="s2"># if player.x &lt; 0:</span>
+    <span class="s2">#     player.x = 0</span>
+    <span class="s2"># elif player.x + player.width &gt; GAME_WIDTH:</span>
+    <span class="s2">#     player.x = GAME_WIDTH - player.width</span>
+
+    <span class="s2"># check_tile_collision_x(player)</span>
+
+    <span class="s2"># y movement</span>
+    <span class="s1">player</span><span class="s3">.</span><span class="s1">velocity_y </span><span class="s3">+= </span><span class="s1">Gravity</span>
+    <span class="s1">player</span><span class="s3">.</span><span class="s1">y </span><span class="s3">+= </span><span class="s1">player</span><span class="s3">.</span><span class="s1">velocity_y</span>
+    <span class="s1">check_tile_collision_y</span><span class="s3">(</span><span class="s1">player</span><span class="s3">)</span>
+
+    <span class="s0">for </span><span class="s1">spike </span><span class="s0">in </span><span class="s1">spikes</span><span class="s3">:</span>
+        <span class="s0">if </span><span class="s1">player</span><span class="s3">.</span><span class="s1">colliderect</span><span class="s3">(</span><span class="s1">spike</span><span class="s3">):</span>
+            <span class="s1">player</span><span class="s3">.</span><span class="s1">health </span><span class="s3">= </span><span class="s4">0  </span><span class="s2"># game over</span>
+
+    <span class="s2"># bullets</span>
+    <span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">player</span><span class="s3">.</span><span class="s1">bullets</span><span class="s3">:</span>
+        <span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+= </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">velocity_x</span>
+        <span class="s0">for </span><span class="s1">enemy </span><span class="s0">in </span><span class="s1">enemies</span><span class="s3">:</span>
+            <span class="s0">if </span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">health </span><span class="s3">&gt; </span><span class="s4">0 </span><span class="s0">and not </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">used </span><span class="s0">and </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">colliderect</span><span class="s3">(</span><span class="s1">enemy</span><span class="s3">):</span>
+                <span class="s1">bullet</span><span class="s3">.</span><span class="s1">used </span><span class="s3">= </span><span class="s0">True</span>
+                <span class="s0">if not </span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">guarding</span><span class="s3">:</span>
+                    <span class="s1">enemy</span><span class="s3">.</span><span class="s1">health </span><span class="s3">-= </span><span class="s4">1</span>
+                    <span class="s0">if </span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">health </span><span class="s3">&lt;= </span><span class="s4">0</span><span class="s3">:</span>
+                        <span class="s1">drop_item</span><span class="s3">(</span><span class="s1">enemy</span><span class="s3">)</span>
+                        <span class="s2"># enemy_bullets += enemy.bullets</span>
+                        <span class="s1">enemy_bullets</span><span class="s3">.</span><span class="s1">extend</span><span class="s3">(</span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">bullets</span><span class="s3">)</span>
+                        <span class="s1">player</span><span class="s3">.</span><span class="s1">score </span><span class="s3">+= </span><span class="s4">500</span>
+
+        <span class="s0">for </span><span class="s1">bat </span><span class="s0">in </span><span class="s1">bats</span><span class="s3">:</span>
+            <span class="s0">if </span><span class="s1">bat</span><span class="s3">.</span><span class="s1">health </span><span class="s3">&gt; </span><span class="s4">0 </span><span class="s0">and not </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">used </span><span class="s0">and </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">colliderect</span><span class="s3">(</span><span class="s1">bat</span><span class="s3">):</span>
+                <span class="s1">bullet</span><span class="s3">.</span><span class="s1">used </span><span class="s3">= </span><span class="s0">True</span>
+                <span class="s1">bat</span><span class="s3">.</span><span class="s1">health </span><span class="s3">-= </span><span class="s4">1</span>
+                <span class="s0">if </span><span class="s1">bat</span><span class="s3">.</span><span class="s1">health </span><span class="s3">&lt;= </span><span class="s4">0</span><span class="s3">:</span>
+                    <span class="s1">drop_item</span><span class="s3">(</span><span class="s1">bat</span><span class="s3">)</span>
+                    <span class="s1">player</span><span class="s3">.</span><span class="s1">score </span><span class="s3">+= </span><span class="s4">2500</span>
+
+        <span class="s0">for </span><span class="s1">dragon </span><span class="s0">in </span><span class="s1">dragons</span><span class="s3">:</span>
+            <span class="s0">if </span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">health </span><span class="s3">&gt; </span><span class="s4">0 </span><span class="s0">and not </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">used </span><span class="s0">and </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">colliderect</span><span class="s3">(</span><span class="s1">dragon</span><span class="s3">):</span>
+                <span class="s1">bullet</span><span class="s3">.</span><span class="s1">used </span><span class="s3">= </span><span class="s0">True</span>
+                <span class="s1">dragon</span><span class="s3">.</span><span class="s1">health </span><span class="s3">-= </span><span class="s4">1</span>
+                <span class="s0">if </span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">health </span><span class="s3">&lt;= </span><span class="s4">0</span><span class="s3">:</span>
+                    <span class="s1">drop_item</span><span class="s3">(</span><span class="s1">dragon</span><span class="s3">)</span>
+                    <span class="s1">dragon_bullets</span><span class="s3">.</span><span class="s1">extend</span><span class="s3">(</span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">bullets</span><span class="s3">)</span>
+                    <span class="s1">player</span><span class="s3">.</span><span class="s1">score </span><span class="s3">+= </span><span class="s4">10000</span>
+                    <span class="s1">game_win </span><span class="s3">= </span><span class="s0">True</span>
+    <span class="s1">player</span><span class="s3">.</span><span class="s1">bullets </span><span class="s3">= [</span><span class="s1">bullet </span><span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">player</span><span class="s3">.</span><span class="s1">bullets </span><span class="s0">if not </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">used \</span>
+                      <span class="s0">and </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+ </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">width </span><span class="s3">&gt; </span><span class="s4">0 </span><span class="s0">and </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">&lt; </span><span class="s1">game_width</span><span class="s3">]</span>
+
+    <span class="s1">enemies </span><span class="s3">= [</span><span class="s1">enemy </span><span class="s0">for </span><span class="s1">enemy </span><span class="s0">in </span><span class="s1">enemies </span><span class="s0">if </span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">health </span><span class="s3">&gt; </span><span class="s4">0</span><span class="s3">]</span>
+    <span class="s1">bats </span><span class="s3">= [</span><span class="s1">bat </span><span class="s0">for </span><span class="s1">bat </span><span class="s0">in </span><span class="s1">bats </span><span class="s0">if </span><span class="s1">bat</span><span class="s3">.</span><span class="s1">health </span><span class="s3">&gt; </span><span class="s4">0</span><span class="s3">]</span>
+    <span class="s1">dragons </span><span class="s3">= [</span><span class="s1">dragon </span><span class="s0">for </span><span class="s1">dragon </span><span class="s0">in </span><span class="s1">dragons </span><span class="s0">if </span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">health </span><span class="s3">&gt; </span><span class="s4">0</span><span class="s3">]</span>
+
+    <span class="s2"># enemy y movement</span>
+
+    <span class="s0">for </span><span class="s1">enemy </span><span class="s0">in </span><span class="s1">enemies</span><span class="s3">:</span>
+        <span class="s0">if </span><span class="s1">player</span><span class="s3">.</span><span class="s1">x </span><span class="s3">&lt; </span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">x</span><span class="s3">:</span>
+            <span class="s1">enemy</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= </span><span class="s5">&quot;left&quot;</span>
+        <span class="s0">else</span><span class="s3">:</span>
+            <span class="s1">enemy</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= </span><span class="s5">&quot;right&quot;</span>
+
+        <span class="s1">enemy</span><span class="s3">.</span><span class="s1">velocity_y </span><span class="s3">+= </span><span class="s1">Gravity</span>
+        <span class="s1">enemy</span><span class="s3">.</span><span class="s1">y </span><span class="s3">+= </span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">velocity_y</span>
+        <span class="s1">check_tile_collision_y</span><span class="s3">(</span><span class="s1">enemy</span><span class="s3">)</span>
+
+        <span class="s0">if not </span><span class="s1">player</span><span class="s3">.</span><span class="s1">invincible </span><span class="s0">and </span><span class="s1">player</span><span class="s3">.</span><span class="s1">colliderect</span><span class="s3">(</span><span class="s1">enemy</span><span class="s3">):</span>
+            <span class="s1">player</span><span class="s3">.</span><span class="s1">health </span><span class="s3">-= </span><span class="s4">1</span>
+            <span class="s1">player</span><span class="s3">.</span><span class="s1">set_invincible</span><span class="s3">()</span>
+
+        <span class="s2"># enemy bullets</span>
+        <span class="s1">enemy</span><span class="s3">.</span><span class="s1">set_shooting</span><span class="s3">()</span>
+        <span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">bullets</span><span class="s3">:</span>
+            <span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+= </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">velocity_x</span>
+            <span class="s1">bullet</span><span class="s3">.</span><span class="s1">y </span><span class="s3">+= </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">velocity_y</span>
+            <span class="s0">if not </span><span class="s1">player</span><span class="s3">.</span><span class="s1">invincible </span><span class="s0">and </span><span class="s1">player</span><span class="s3">.</span><span class="s1">colliderect</span><span class="s3">(</span><span class="s1">bullet</span><span class="s3">):</span>
+                <span class="s1">player</span><span class="s3">.</span><span class="s1">health </span><span class="s3">-= </span><span class="s4">2</span>
+                <span class="s1">bullet</span><span class="s3">.</span><span class="s1">used </span><span class="s3">= </span><span class="s0">True</span>
+                <span class="s1">player</span><span class="s3">.</span><span class="s1">set_invincible</span><span class="s3">()</span>
+
+        <span class="s1">enemy</span><span class="s3">.</span><span class="s1">bullets </span><span class="s3">= [</span><span class="s1">bullet </span><span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">bullets </span><span class="s0">if not </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">used \</span>
+                          <span class="s0">and </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+ </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">width </span><span class="s3">&gt; </span><span class="s4">0 </span><span class="s0">and </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">&lt; </span><span class="s1">game_width</span><span class="s3">]</span>
+
+    <span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">enemy_bullets</span><span class="s3">:</span>
+        <span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+= </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">velocity_x</span>
+        <span class="s1">bullet</span><span class="s3">.</span><span class="s1">y </span><span class="s3">+= </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">velocity_y</span>
+        <span class="s0">if not </span><span class="s1">player</span><span class="s3">.</span><span class="s1">invincible </span><span class="s0">and </span><span class="s1">player</span><span class="s3">.</span><span class="s1">colliderect</span><span class="s3">(</span><span class="s1">bullet</span><span class="s3">):</span>
+            <span class="s1">player</span><span class="s3">.</span><span class="s1">health </span><span class="s3">-= </span><span class="s4">2</span>
+            <span class="s1">bullet</span><span class="s3">.</span><span class="s1">used </span><span class="s3">= </span><span class="s0">True</span>
+            <span class="s1">player</span><span class="s3">.</span><span class="s1">set_invincible</span><span class="s3">()</span>
+
+    <span class="s1">enemy_bullets </span><span class="s3">= [</span><span class="s1">bullet </span><span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">enemy_bullets </span><span class="s0">if not </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">used \</span>
+                      <span class="s0">and </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+ </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">width </span><span class="s3">&gt; </span><span class="s4">0 </span><span class="s0">and </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">&lt; </span><span class="s1">game_width</span><span class="s3">]</span>
+
+    <span class="s2">#dragon movement</span>
+    <span class="s0">for </span><span class="s1">dragon </span><span class="s0">in </span><span class="s1">dragons</span><span class="s3">:</span>
+        <span class="s0">if </span><span class="s1">player</span><span class="s3">.</span><span class="s1">x </span><span class="s3">&lt; </span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">x</span><span class="s3">:</span>
+            <span class="s1">dragon</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= </span><span class="s5">&quot;left&quot;</span>
+        <span class="s0">else</span><span class="s3">:</span>
+            <span class="s1">dragon</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= </span><span class="s5">&quot;right&quot;</span>
+
+        <span class="s1">dragon</span><span class="s3">.</span><span class="s1">velocity_y </span><span class="s3">+= </span><span class="s1">Gravity</span>
+        <span class="s1">dragon</span><span class="s3">.</span><span class="s1">y </span><span class="s3">+= </span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">velocity_y</span>
+        <span class="s1">check_tile_collision_y</span><span class="s3">(</span><span class="s1">dragon</span><span class="s3">)</span>
+
+        <span class="s0">if not </span><span class="s1">player</span><span class="s3">.</span><span class="s1">invincible </span><span class="s0">and </span><span class="s1">player</span><span class="s3">.</span><span class="s1">colliderect</span><span class="s3">(</span><span class="s1">dragon</span><span class="s3">):</span>
+            <span class="s1">player</span><span class="s3">.</span><span class="s1">health </span><span class="s3">-= </span><span class="s4">1</span>
+            <span class="s1">player</span><span class="s3">.</span><span class="s1">set_invincible</span><span class="s3">()</span>
+
+        <span class="s2"># enemy bullets</span>
+        <span class="s1">dragon</span><span class="s3">.</span><span class="s1">set_shooting</span><span class="s3">()</span>
+        <span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">bullets</span><span class="s3">:</span>
+            <span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+= </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">velocity_x</span>
+            <span class="s1">bullet</span><span class="s3">.</span><span class="s1">y </span><span class="s3">+= </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">velocity_y</span>
+            <span class="s0">if not </span><span class="s1">player</span><span class="s3">.</span><span class="s1">invincible </span><span class="s0">and </span><span class="s1">player</span><span class="s3">.</span><span class="s1">colliderect</span><span class="s3">(</span><span class="s1">bullet</span><span class="s3">):</span>
+                <span class="s1">player</span><span class="s3">.</span><span class="s1">health </span><span class="s3">-= </span><span class="s4">2</span>
+                <span class="s1">bullet</span><span class="s3">.</span><span class="s1">used </span><span class="s3">= </span><span class="s0">True</span>
+                <span class="s1">player</span><span class="s3">.</span><span class="s1">set_invincible</span><span class="s3">()</span>
+
+        <span class="s1">dragon</span><span class="s3">.</span><span class="s1">bullets </span><span class="s3">= [</span><span class="s1">bullet </span><span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">bullets </span><span class="s0">if not </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">used \</span>
+                          <span class="s0">and </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+ </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">width </span><span class="s3">&gt; </span><span class="s4">0 </span><span class="s0">and </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">&lt; </span><span class="s1">game_width</span><span class="s3">]</span>
+
+    <span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">dragon_bullets</span><span class="s3">:</span>
+        <span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+= </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">velocity_x</span>
+        <span class="s1">bullet</span><span class="s3">.</span><span class="s1">y </span><span class="s3">+= </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">velocity_y</span>
+        <span class="s0">if not </span><span class="s1">player</span><span class="s3">.</span><span class="s1">invincible </span><span class="s0">and </span><span class="s1">player</span><span class="s3">.</span><span class="s1">colliderect</span><span class="s3">(</span><span class="s1">bullet</span><span class="s3">):</span>
+            <span class="s1">player</span><span class="s3">.</span><span class="s1">health </span><span class="s3">-= </span><span class="s4">2</span>
+            <span class="s1">bullet</span><span class="s3">.</span><span class="s1">used </span><span class="s3">= </span><span class="s0">True</span>
+            <span class="s1">player</span><span class="s3">.</span><span class="s1">set_invincible</span><span class="s3">()</span>
+
+    <span class="s1">dragon_bullets </span><span class="s3">= [</span><span class="s1">bullet </span><span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">dragon_bullets </span><span class="s0">if not </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">used \</span>
+                      <span class="s0">and </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+ </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">width </span><span class="s3">&gt; </span><span class="s4">0 </span><span class="s0">and </span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">x </span><span class="s3">&lt; </span><span class="s1">game_width</span><span class="s3">]</span>
+
+    <span class="s0">for </span><span class="s1">bat </span><span class="s0">in </span><span class="s1">bats</span><span class="s3">:</span>
+        <span class="s0">if </span><span class="s1">abs</span><span class="s3">(</span><span class="s1">bat</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+ </span><span class="s1">bat</span><span class="s3">.</span><span class="s1">velocity_x </span><span class="s3">- </span><span class="s1">bat</span><span class="s3">.</span><span class="s1">start_x</span><span class="s3">) &gt;= </span><span class="s1">bat</span><span class="s3">.</span><span class="s1">max_range_x</span><span class="s3">:</span>
+            <span class="s1">bat</span><span class="s3">.</span><span class="s1">velocity_x </span><span class="s3">*= -</span><span class="s4">1</span>
+            <span class="s0">if </span><span class="s1">bat</span><span class="s3">.</span><span class="s1">velocity_x </span><span class="s3">&lt; </span><span class="s4">0</span><span class="s3">:</span>
+                <span class="s1">bat</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= </span><span class="s5">&quot;left&quot;</span>
+            <span class="s0">elif </span><span class="s1">bat</span><span class="s3">.</span><span class="s1">velocity_x </span><span class="s3">&gt; </span><span class="s4">0</span><span class="s3">:</span>
+                <span class="s1">bat</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= </span><span class="s5">&quot;right&quot;</span>
+        <span class="s0">else</span><span class="s3">:</span>
+            <span class="s1">bat</span><span class="s3">.</span><span class="s1">x </span><span class="s3">+= </span><span class="s1">bat</span><span class="s3">.</span><span class="s1">velocity_x</span>
+
+        <span class="s0">if </span><span class="s1">abs</span><span class="s3">(</span><span class="s1">bat</span><span class="s3">.</span><span class="s1">y </span><span class="s3">+ </span><span class="s1">bat</span><span class="s3">.</span><span class="s1">velocity_y </span><span class="s3">- </span><span class="s1">bat</span><span class="s3">.</span><span class="s1">start_y</span><span class="s3">) &gt;= </span><span class="s1">bat</span><span class="s3">.</span><span class="s1">max_range_y</span><span class="s3">:</span>
+            <span class="s1">bat</span><span class="s3">.</span><span class="s1">velocity_y </span><span class="s3">*= -</span><span class="s4">1</span>
+        <span class="s0">else</span><span class="s3">:</span>
+            <span class="s1">bat</span><span class="s3">.</span><span class="s1">y </span><span class="s3">+= </span><span class="s1">bat</span><span class="s3">.</span><span class="s1">velocity_y</span>
+
+        <span class="s0">if not </span><span class="s1">player</span><span class="s3">.</span><span class="s1">invincible </span><span class="s0">and </span><span class="s1">player</span><span class="s3">.</span><span class="s1">colliderect</span><span class="s3">(</span><span class="s1">bat</span><span class="s3">):</span>
+            <span class="s1">player</span><span class="s3">.</span><span class="s1">health </span><span class="s3">-= </span><span class="s4">1</span>
+            <span class="s1">player</span><span class="s3">.</span><span class="s1">set_invincible</span><span class="s3">()</span>
+
+    <span class="s0">for </span><span class="s1">item </span><span class="s0">in </span><span class="s1">items</span><span class="s3">:</span>
+        <span class="s1">item</span><span class="s3">.</span><span class="s1">velocity_y </span><span class="s3">+= </span><span class="s1">Gravity</span>
+        <span class="s1">item</span><span class="s3">.</span><span class="s1">y </span><span class="s3">+= </span><span class="s1">item</span><span class="s3">.</span><span class="s1">velocity_y</span>
+        <span class="s1">check_tile_collision_y</span><span class="s3">(</span><span class="s1">item</span><span class="s3">)</span>
+        <span class="s0">if </span><span class="s1">player</span><span class="s3">.</span><span class="s1">colliderect</span><span class="s3">(</span><span class="s1">item</span><span class="s3">):</span>
+            <span class="s1">item</span><span class="s3">.</span><span class="s1">used </span><span class="s3">= </span><span class="s0">True</span>
+            <span class="s0">if </span><span class="s1">item</span><span class="s3">.</span><span class="s1">image </span><span class="s3">== </span><span class="s1">life_energy_image</span><span class="s3">:</span>
+                <span class="s1">player</span><span class="s3">.</span><span class="s1">health </span><span class="s3">= </span><span class="s1">min</span><span class="s3">(</span><span class="s1">player</span><span class="s3">.</span><span class="s1">health </span><span class="s3">+ </span><span class="s4">2</span><span class="s3">, </span><span class="s1">player</span><span class="s3">.</span><span class="s1">max_health</span><span class="s3">)</span>
+
+    <span class="s1">items </span><span class="s3">= [</span><span class="s1">item </span><span class="s0">for </span><span class="s1">item </span><span class="s0">in </span><span class="s1">items </span><span class="s0">if not </span><span class="s1">item</span><span class="s3">.</span><span class="s1">used</span><span class="s3">]</span>
+
+    <span class="s0">if </span><span class="s1">player</span><span class="s3">.</span><span class="s1">health </span><span class="s3">&lt;= </span><span class="s4">0 </span><span class="s0">or </span><span class="s1">player</span><span class="s3">.</span><span class="s1">y </span><span class="s3">&gt; </span><span class="s1">game_height</span><span class="s3">:</span>
+        <span class="s1">game_over </span><span class="s3">= </span><span class="s0">True</span>
+
+
+<span class="s0">def </span><span class="s1">draw</span><span class="s3">():</span>
+    <span class="s1">window</span><span class="s3">.</span><span class="s1">fill</span><span class="s3">(</span><span class="s5">&quot;pink&quot;</span><span class="s3">) </span><span class="s2">#window color</span>
+    <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">background_image</span><span class="s3">, (</span><span class="s4">0</span><span class="s3">, </span><span class="s4">20</span><span class="s3">)) </span><span class="s2">#place the background</span>
+
+    <span class="s0">for </span><span class="s1">tile </span><span class="s0">in </span><span class="s1">background_tiles</span><span class="s3">:</span>
+        <span class="s0">if </span><span class="s1">tile</span><span class="s3">.</span><span class="s1">x </span><span class="s3">&gt; </span><span class="s1">game_width</span><span class="s3">:</span>
+            <span class="s0">break</span>
+        <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">tile</span><span class="s3">.</span><span class="s1">image</span><span class="s3">, </span><span class="s1">tile</span><span class="s3">)</span>
+
+    <span class="s0">for </span><span class="s1">tile </span><span class="s0">in </span><span class="s1">tiles</span><span class="s3">:</span>
+        <span class="s0">if </span><span class="s1">tile</span><span class="s3">.</span><span class="s1">x </span><span class="s3">&gt; </span><span class="s1">game_width</span><span class="s3">:</span>
+            <span class="s0">break</span>
+        <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">tile</span><span class="s3">.</span><span class="s1">image</span><span class="s3">, </span><span class="s1">tile</span><span class="s3">)</span>
+
+    <span class="s0">for </span><span class="s1">spike </span><span class="s0">in </span><span class="s1">spikes</span><span class="s3">:</span>
+        <span class="s0">if </span><span class="s1">spike</span><span class="s3">.</span><span class="s1">x </span><span class="s3">&gt; </span><span class="s1">game_width</span><span class="s3">:</span>
+            <span class="s0">break</span>
+        <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">spike</span><span class="s3">.</span><span class="s1">image</span><span class="s3">, </span><span class="s1">spike</span><span class="s3">)</span>
+
+    <span class="s1">player</span><span class="s3">.</span><span class="s1">update_image</span><span class="s3">()</span>
+    <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">player</span><span class="s3">.</span><span class="s1">image</span><span class="s3">, </span><span class="s1">player</span><span class="s3">)</span>
+
+    <span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">player</span><span class="s3">.</span><span class="s1">bullets</span><span class="s3">:</span>
+        <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">image</span><span class="s3">, </span><span class="s1">bullet</span><span class="s3">)</span>
+
+    <span class="s0">for </span><span class="s1">enemy </span><span class="s0">in </span><span class="s1">enemies</span><span class="s3">:</span>
+        <span class="s0">if </span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">x </span><span class="s3">&lt;= </span><span class="s1">game_width</span><span class="s3">:</span>
+            <span class="s1">enemy</span><span class="s3">.</span><span class="s1">update_image</span><span class="s3">()</span>
+            <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">image</span><span class="s3">, </span><span class="s1">enemy</span><span class="s3">)</span>
+        <span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">enemy</span><span class="s3">.</span><span class="s1">bullets</span><span class="s3">:</span>
+            <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">image</span><span class="s3">, </span><span class="s1">bullet</span><span class="s3">)</span>
+
+    <span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">enemy_bullets</span><span class="s3">:</span>
+        <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">image</span><span class="s3">, </span><span class="s1">bullet</span><span class="s3">)</span>
+
+    <span class="s0">for </span><span class="s1">dragon </span><span class="s0">in </span><span class="s1">dragons</span><span class="s3">:</span>
+        <span class="s0">if </span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">x </span><span class="s3">&lt;= </span><span class="s1">game_width</span><span class="s3">:</span>
+            <span class="s1">dragon</span><span class="s3">.</span><span class="s1">update_image</span><span class="s3">()</span>
+            <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">image</span><span class="s3">, </span><span class="s1">dragon</span><span class="s3">)</span>
+        <span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">dragon</span><span class="s3">.</span><span class="s1">bullets</span><span class="s3">:</span>
+            <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">image</span><span class="s3">, </span><span class="s1">bullet</span><span class="s3">)</span>
+
+    <span class="s0">for </span><span class="s1">bullet </span><span class="s0">in </span><span class="s1">dragon_bullets</span><span class="s3">:</span>
+        <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">bullet</span><span class="s3">.</span><span class="s1">image</span><span class="s3">, </span><span class="s1">bullet</span><span class="s3">)</span>
+
+    <span class="s0">for </span><span class="s1">bat </span><span class="s0">in </span><span class="s1">bats</span><span class="s3">:</span>
+        <span class="s0">if </span><span class="s1">bat</span><span class="s3">.</span><span class="s1">x </span><span class="s3">&gt; </span><span class="s1">game_width</span><span class="s3">:</span>
+            <span class="s0">break</span>
+        <span class="s1">bat</span><span class="s3">.</span><span class="s1">update_image</span><span class="s3">()</span>
+        <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">bat</span><span class="s3">.</span><span class="s1">image</span><span class="s3">, </span><span class="s1">bat</span><span class="s3">)</span>
+
+  <span class="s2">#  for dragon in dragons:</span>
+     <span class="s2">#   if dragon.x &gt; game_width:</span>
+      <span class="s2">#      break</span>
+      <span class="s2">#  dragon.update_image()</span>
+       <span class="s2"># window.blit(dragon.image, dragon)</span>
+       <span class="s2"># for bullet in dragon.bullets:</span>
+        <span class="s2">#    window.blit(bullet.image, bullet)</span>
+
+    <span class="s0">for </span><span class="s1">item </span><span class="s0">in </span><span class="s1">items</span><span class="s3">:</span>
+        <span class="s0">if </span><span class="s1">item</span><span class="s3">.</span><span class="s1">x </span><span class="s3">&gt; </span><span class="s1">game_width</span><span class="s3">:</span>
+            <span class="s0">break</span>
+        <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">item</span><span class="s3">.</span><span class="s1">image</span><span class="s3">, </span><span class="s1">item</span><span class="s3">)</span>
+
+    <span class="s2">#pygame.draw.rect(window, &quot;red&quot;, (Tile_Size, Tile_Size, 10 * player.max_health, 10))</span>
+    <span class="s2">#pygame.draw.rect(window, &quot;green&quot;, (Tile_Size, Tile_Size, 10 * player.health, 10))</span>
+
+    <span class="s1">pygame</span><span class="s3">.</span><span class="s1">draw</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">(</span><span class="s1">window</span><span class="s3">, </span><span class="s5">&quot;black&quot;</span><span class="s3">, (</span><span class="s1">Tile_Size</span><span class="s3">, </span><span class="s1">Tile_Size</span><span class="s3">, </span><span class="s1">Health_Width</span><span class="s3">, </span><span class="s1">Health_Height </span><span class="s3">* </span><span class="s1">player</span><span class="s3">.</span><span class="s1">max_health</span><span class="s3">))</span>
+    <span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range</span><span class="s3">(</span><span class="s1">player</span><span class="s3">.</span><span class="s1">max_health </span><span class="s3">- </span><span class="s1">player</span><span class="s3">.</span><span class="s1">health</span><span class="s3">, </span><span class="s1">player</span><span class="s3">.</span><span class="s1">max_health</span><span class="s3">):</span>
+        <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">health_image</span><span class="s3">, (</span><span class="s1">Tile_Size</span><span class="s3">, </span><span class="s1">Tile_Size </span><span class="s3">+ </span><span class="s1">i</span><span class="s3">*</span><span class="s1">Health_Height</span><span class="s3">, </span><span class="s1">Health_Width</span><span class="s3">, </span><span class="s1">Health_Height</span><span class="s3">))</span>
+
+    <span class="s2">#score</span>
+    <span class="s1">text_score </span><span class="s3">= </span><span class="s1">str</span><span class="s3">(</span><span class="s1">player</span><span class="s3">.</span><span class="s1">score</span><span class="s3">)</span>
+    <span class="s0">while </span><span class="s1">len</span><span class="s3">(</span><span class="s1">text_score</span><span class="s3">) &lt; </span><span class="s4">7</span><span class="s3">: </span><span class="s2">#7 digits in score</span>
+        <span class="s1">text_score </span><span class="s3">= </span><span class="s5">&quot;0&quot; </span><span class="s3">+ </span><span class="s1">text_score</span>
+    <span class="s1">text_surface </span><span class="s3">= </span><span class="s1">game_font</span><span class="s3">.</span><span class="s1">render</span><span class="s3">(</span><span class="s1">text_score</span><span class="s3">, </span><span class="s0">False</span><span class="s3">, </span><span class="s5">&quot;white&quot;</span><span class="s3">)</span>
+    <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">text_surface</span><span class="s3">, (</span><span class="s1">game_width</span><span class="s3">/</span><span class="s4">2</span><span class="s3">, </span><span class="s1">Tile_Size</span><span class="s3">/</span><span class="s4">2</span><span class="s3">))</span>
+
+    <span class="s0">if </span><span class="s1">game_over</span><span class="s3">:</span>
+        <span class="s1">text_surface </span><span class="s3">= </span><span class="s1">game_font</span><span class="s3">.</span><span class="s1">render</span><span class="s3">(</span><span class="s5">&quot;GAME OVER:&quot;</span><span class="s3">, </span><span class="s0">False</span><span class="s3">, </span><span class="s5">&quot;white&quot;</span><span class="s3">)</span>
+        <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">text_surface</span><span class="s3">, (</span><span class="s1">game_width </span><span class="s3">/ </span><span class="s4">2</span><span class="s3">, </span><span class="s1">game_height </span><span class="s3">/ </span><span class="s4">2</span><span class="s3">))</span>
+        <span class="s1">text_surface </span><span class="s3">= </span><span class="s1">game_font</span><span class="s3">.</span><span class="s1">render</span><span class="s3">(</span><span class="s5">&quot;Press [Enter} to restart&quot;</span><span class="s3">, </span><span class="s0">False</span><span class="s3">, </span><span class="s5">&quot;white&quot;</span><span class="s3">)</span>
+        <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">text_surface</span><span class="s3">, (</span><span class="s1">game_width </span><span class="s3">/ </span><span class="s4">2</span><span class="s3">, </span><span class="s1">game_height </span><span class="s3">/ </span><span class="s4">2 </span><span class="s3">+ </span><span class="s1">Tile_Size</span><span class="s3">))</span>
+
+    <span class="s0">if </span><span class="s1">game_win</span><span class="s3">:</span>
+        <span class="s1">text_surface </span><span class="s3">= </span><span class="s1">game_font</span><span class="s3">.</span><span class="s1">render</span><span class="s3">(</span><span class="s5">&quot;OMG you actually won...:&quot;</span><span class="s3">, </span><span class="s0">False</span><span class="s3">, </span><span class="s5">&quot;white&quot;</span><span class="s3">)</span>
+        <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">text_surface</span><span class="s3">, (</span><span class="s1">game_width </span><span class="s3">/ </span><span class="s4">2</span><span class="s3">, </span><span class="s1">game_height </span><span class="s3">/ </span><span class="s4">2</span><span class="s3">))</span>
+        <span class="s1">text_surface </span><span class="s3">= </span><span class="s1">game_font</span><span class="s3">.</span><span class="s1">render</span><span class="s3">(</span><span class="s5">f&quot;Final Score: </span><span class="s0">{</span><span class="s1">text_score</span><span class="s0">}</span><span class="s5">&quot;</span><span class="s3">, </span><span class="s0">False</span><span class="s3">, </span><span class="s5">&quot;white&quot;</span><span class="s3">)</span>
+        <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">text_surface</span><span class="s3">, (</span><span class="s1">game_width </span><span class="s3">/ </span><span class="s4">2</span><span class="s3">, </span><span class="s1">game_height </span><span class="s3">/ </span><span class="s4">2 </span><span class="s3">+ </span><span class="s1">Tile_Size </span><span class="s3">))</span>
+        <span class="s1">text_surface </span><span class="s3">= </span><span class="s1">game_font</span><span class="s3">.</span><span class="s1">render</span><span class="s3">(</span><span class="s5">&quot;Press [Enter} to play again&quot;</span><span class="s3">, </span><span class="s0">False</span><span class="s3">, </span><span class="s5">&quot;white&quot;</span><span class="s3">)</span>
+        <span class="s1">window</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">text_surface</span><span class="s3">, (</span><span class="s1">game_width </span><span class="s3">/ </span><span class="s4">2</span><span class="s3">, </span><span class="s1">game_height </span><span class="s3">/ </span><span class="s4">2 </span><span class="s3">+ </span><span class="s1">Tile_Size</span><span class="s3">*</span><span class="s4">2</span><span class="s3">))</span>
+
+   <span class="s2"># if player.x &lt;= Column_Count:</span>
+        <span class="s2">#text_surface = game_font.render(&quot;You Win!&quot;, False, &quot;white&quot;)</span>
+       <span class="s2"># window.blit(text_surface, (game_width / 2, game_height / 2))</span>
+       <span class="s2"># text_surface = game_font.render(&quot;Press [Enter] to play again&quot;, False, &quot;white&quot;)</span>
+        <span class="s2">#window.blit(text_surface, (game_width / 2, game_height / 2 + Tile_Size))</span>
+        <span class="s2">#reset_game()</span>
+
+<span class="s2">#start game</span>
+<span class="s1">player </span><span class="s3">= </span><span class="s1">Player</span><span class="s3">()</span>
+<span class="s1">enemies </span><span class="s3">= []</span>
+<span class="s1">enemy_bullets </span><span class="s3">= [] </span><span class="s2"># keep bullets active after death</span>
+<span class="s1">tiles </span><span class="s3">= []</span>
+<span class="s1">background_tiles </span><span class="s3">= []</span>
+<span class="s1">items </span><span class="s3">= []</span>
+<span class="s1">spikes </span><span class="s3">= []</span>
+<span class="s1">bats </span><span class="s3">= []</span>
+<span class="s2">#final_tiles = []</span>
+<span class="s2">#win_tiles = []</span>
+<span class="s1">dragons </span><span class="s3">= []</span>
+<span class="s1">dragon_bullets </span><span class="s3">= []</span>
+<span class="s1">create_map</span><span class="s3">()</span>
+
+<span class="s0">while True</span><span class="s3">:</span><span class="s2">#game loop</span>
+    <span class="s0">for </span><span class="s1">event </span><span class="s0">in </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">event</span><span class="s3">.</span><span class="s1">get</span><span class="s3">():</span>
+        <span class="s0">if </span><span class="s1">event</span><span class="s3">.</span><span class="s1">type </span><span class="s3">== </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">QUIT</span><span class="s3">:</span>
+            <span class="s1">pygame</span><span class="s3">.</span><span class="s1">quit</span><span class="s3">()</span>
+            <span class="s1">exit</span><span class="s3">()</span>
+
+        <span class="s0">if </span><span class="s1">event</span><span class="s3">.</span><span class="s1">type </span><span class="s3">== </span><span class="s1">Invincible_End</span><span class="s3">:</span>
+            <span class="s1">player</span><span class="s3">.</span><span class="s1">invincible </span><span class="s3">= </span><span class="s0">False</span>
+        <span class="s0">elif </span><span class="s1">event</span><span class="s3">.</span><span class="s1">type </span><span class="s3">== </span><span class="s1">Shooting_End</span><span class="s3">:</span>
+            <span class="s1">player</span><span class="s3">.</span><span class="s1">shooting </span><span class="s3">= </span><span class="s0">False</span>
+
+        <span class="s2">#control keys WASD and arrows</span>
+    <span class="s1">keys </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">key</span><span class="s3">.</span><span class="s1">get_pressed</span><span class="s3">()</span>
+    <span class="s0">if </span><span class="s3">(</span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_RETURN</span><span class="s3">] </span><span class="s0">or </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_KP_ENTER</span><span class="s3">]) </span><span class="s0">and </span><span class="s1">game_over</span><span class="s3">:</span>
+        <span class="s1">reset_game</span><span class="s3">()</span>
+
+    <span class="s0">if </span><span class="s3">(</span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_RETURN</span><span class="s3">] </span><span class="s0">or </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_KP_ENTER</span><span class="s3">]) </span><span class="s0">and </span><span class="s1">game_win</span><span class="s3">:</span>
+        <span class="s1">reset_game</span><span class="s3">()</span>
+
+    <span class="s0">if </span><span class="s3">(</span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_UP</span><span class="s3">] </span><span class="s0">or </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_w</span><span class="s3">]) </span><span class="s0">and not </span><span class="s1">player</span><span class="s3">.</span><span class="s1">jumping</span><span class="s3">:</span>
+        <span class="s1">player</span><span class="s3">.</span><span class="s1">velocity_y </span><span class="s3">= </span><span class="s1">Player_Velocity_Y</span>
+        <span class="s1">player</span><span class="s3">.</span><span class="s1">jumping </span><span class="s3">= </span><span class="s0">True</span>
+
+    <span class="s0">if </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_LEFT</span><span class="s3">] </span><span class="s0">or </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_a</span><span class="s3">]:</span>
+        <span class="s2">#player.velocity_x = -Player_Velocity_X</span>
+        <span class="s1">move_player_x</span><span class="s3">(</span><span class="s1">Player_Velocity_X</span><span class="s3">)</span>
+        <span class="s1">player</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= </span><span class="s5">&quot;left&quot;</span>
+
+    <span class="s0">if </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_RIGHT</span><span class="s3">] </span><span class="s0">or </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_d</span><span class="s3">]:</span>
+        <span class="s2">#player.velocity_x = Player_Velocity_X</span>
+        <span class="s1">move_player_x</span><span class="s3">(-</span><span class="s1">Player_Velocity_X</span><span class="s3">)</span>
+        <span class="s1">player</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= </span><span class="s5">&quot;right&quot;</span>
+
+    <span class="s0">if </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_x</span><span class="s3">] </span><span class="s0">or </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_SPACE</span><span class="s3">]:</span>
+        <span class="s1">player</span><span class="s3">.</span><span class="s1">set_shooting</span><span class="s3">()</span>
+
+    <span class="s2">#Press speed movement</span>
+    <span class="s1">keys </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">key</span><span class="s3">.</span><span class="s1">get_pressed</span><span class="s3">()</span>
+
+    <span class="s1">player</span><span class="s3">.</span><span class="s1">velocity_x </span><span class="s3">= </span><span class="s4">0</span>
+
+    <span class="s0">if </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_LEFT</span><span class="s3">] </span><span class="s0">or </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_a</span><span class="s3">]:</span>
+        <span class="s1">player</span><span class="s3">.</span><span class="s1">velocity_x </span><span class="s3">= -</span><span class="s1">Player_Velocity_X</span>
+        <span class="s1">player</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= </span><span class="s5">&quot;left&quot;</span>
+
+    <span class="s0">if </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_RIGHT</span><span class="s3">] </span><span class="s0">or </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_d</span><span class="s3">]:</span>
+        <span class="s1">player</span><span class="s3">.</span><span class="s1">velocity_x </span><span class="s3">= </span><span class="s1">Player_Velocity_X</span>
+        <span class="s1">player</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= </span><span class="s5">&quot;right&quot;</span>
+
+    <span class="s0">if </span><span class="s3">(</span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_UP</span><span class="s3">] </span><span class="s0">or </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_w</span><span class="s3">]) </span><span class="s0">and not </span><span class="s1">player</span><span class="s3">.</span><span class="s1">jumping</span><span class="s3">:</span>
+        <span class="s1">player</span><span class="s3">.</span><span class="s1">velocity_y </span><span class="s3">= </span><span class="s1">Player_Velocity_Y</span>
+        <span class="s1">player</span><span class="s3">.</span><span class="s1">jumping </span><span class="s3">= </span><span class="s0">True</span>
+
+    <span class="s0">if not </span><span class="s1">game_over </span><span class="s0">and not </span><span class="s1">game_win</span><span class="s3">:</span>
+        <span class="s1">move</span><span class="s3">()</span>
+
+        <span class="s1">draw</span><span class="s3">()</span>
+        <span class="s1">pygame</span><span class="s3">.</span><span class="s1">display</span><span class="s3">.</span><span class="s1">update</span><span class="s3">()</span>
+        <span class="s1">clock</span><span class="s3">.</span><span class="s1">tick</span><span class="s3">(</span><span class="s4">60</span><span class="s3">) </span><span class="s2"># 60 fps</span></pre>
+</body>
+</html>
